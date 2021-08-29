@@ -18,7 +18,7 @@ class _SplashPageState extends State<SplashPage> {
           seconds: 5,
           backgroundColor: Colors.white,
           navigateAfterSeconds: LoginPage(),
-          loaderColor: Colors.blue[800],
+          loaderColor: Colors.indigo[800],
         ),
         Center(
           child: Container(

@@ -32,5 +32,5 @@ abstract class _UserBase with Store {
   String confirmaPassword;
 
   @action
-  changePassword2(String value) => confirmaPassword = value;
+  changeConfirmaPassword(String value) => confirmaPassword = value;
 }

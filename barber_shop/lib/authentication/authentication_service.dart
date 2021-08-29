@@ -9,9 +9,9 @@ class AuthenticationService {
 
   Future<String> cadastro({String email, String password}) async {
     try {
-      await _firebaseAuth.createUserWithEmailAndPassword(
-          email: email, password: password);
-      return "Cadastro realizado com sucesso";
+      UserCredential userCredential = await _firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password);
+      return userCredential.user.uid;
     } on FirebaseAuthException catch (e) {
       return e.message;
     }
@@ -19,11 +19,15 @@ class AuthenticationService {
 
   Future<String> login({String email, String password}) async {
     try {
-      await _firebaseAuth.signInWithEmailAndPassword(
-          email: email, password: password);
-      return "Login realizado com sucesso";
+      UserCredential userCredential = await _firebaseAuth
+          .signInWithEmailAndPassword(email: email, password: password);
+      return userCredential.user.uid;
     } on FirebaseAuthException catch (e) {
       return e.message;
     }
+  }
+
+  Future<void> logout() async {
+    await _firebaseAuth.signOut();
   }
 }

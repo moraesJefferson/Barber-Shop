@@ -1,14 +1,35 @@
 import 'package:barber_shop/app/models/user.dart';
+import 'package:barber_shop/app/services/cadastro_service.dart';
+import 'package:barber_shop/authentication/authentication_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobx/mobx.dart';
+
 part 'user_controller.g.dart';
 
 class UserController = _UserControllerBase with _$UserController;
 
 abstract class _UserControllerBase with Store {
-  var user = Usuario();
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  var uid;
+  Usuario user = Usuario();
+  String uid;
+  final AuthenticationService _authenticationService =
+      AuthenticationService(FirebaseAuth.instance);
+
+  @observable
+  bool containerOrAlert = false;
+
+  @observable
+  bool isLoginBarbearia = false;
+
+  @action
+  changeContainerOrAlert(bool value) => containerOrAlert = value;
+
+  @action
+  changeIsLoginBarbearia(bool value) => isLoginBarbearia = value;
+
+  @computed
+  bool get isContainerOrAlert {
+    return containerOrAlert;
+  }
 
   @computed
   bool get isValidEmailPassword {
@@ -19,9 +40,21 @@ abstract class _UserControllerBase with Store {
   bool get isValid {
     return validateName() == null &&
         validateEmail() == null &&
-        validateCpf() == null &&
-        validatePassword() == null &&
-        validatePassword2() == null;
+        validateCpf() == null;
+  }
+
+  @computed
+  bool get isValidPassword {
+    return validatePassword() == null && validateConfirmaPassword() == null;
+  }
+
+  void inicializarCamposSenhas() {
+    user.password = null;
+    user.confirmaPassword = null;
+  }
+
+  void limparCampos() {
+    user = Usuario();
   }
 
   String validateName() {
@@ -60,7 +93,7 @@ abstract class _UserControllerBase with Store {
     return null;
   }
 
-  String validatePassword2() {
+  String validateConfirmaPassword() {
     if (user.confirmaPassword == null || user.confirmaPassword.isEmpty) {
       return "O campo é obrigatório";
     } else if (user.confirmaPassword != user.password) {
@@ -71,27 +104,25 @@ abstract class _UserControllerBase with Store {
 
   Future<void> cadastro() async {
     try {
-      await _firebaseAuth.createUserWithEmailAndPassword(
+      uid = await _authenticationService.cadastro(
           email: user.email, password: user.password);
-      //return "Cadastro realizado com sucesso";
     } on FirebaseAuthException catch (e) {
       print(e.message);
     }
   }
 
-  Future<String> login() async {
-    UserCredential userCredential;
+  Future<void> login() async {
     try {
-      userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+      uid = await _authenticationService.login(
           email: user.email, password: user.password);
-      //print(userCredential.user.uid);
-      uid = userCredential.user.uid;
-      return "Login realizado com sucesso";
     } on FirebaseAuthException catch (e) {
       print(e.message);
-      print('deu null');
-      //uid = null;
-      return null;
     }
+  }
+
+  void addUser() {
+    CadastroService.getInstance()
+        .addUser(id: uid, name: user.name, cpf: user.cpf, email: user.email);
+    user = Usuario();
   }
 }

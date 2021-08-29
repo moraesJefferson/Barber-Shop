@@ -131,11 +131,11 @@ mixin _$Usuario on _UserBase, Store {
   }
 
   @override
-  dynamic changePassword2(String value) {
+  dynamic changeConfirmaPassword(String value) {
     final _$actionInfo = _$_UserBaseActionController.startAction(
-        name: '_UserBase.changePassword2');
+        name: '_UserBase.changeConfirmaPassword');
     try {
-      return super.changePassword2(value);
+      return super.changeConfirmaPassword(value);
     } finally {
       _$_UserBaseActionController.endAction(_$actionInfo);
     }
